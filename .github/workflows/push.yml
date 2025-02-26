@@ -13,21 +13,24 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # 更新系统证书
+    - name: Update CA certificates
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates
+        sudo update-ca-certificates
+
     - uses: actions/setup-node@v4
       with:
         node-version: '18.x'
         registry-url: 'https://registry.npmjs.org'
 
-    # 配置 npm
+    # 简化 npm 配置
     - name: Configure npm
       run: |
         npm config set strict-ssl false
         npm config set registry https://registry.npmjs.org/
-        npm config set node-gyp $(npm prefix -g)/lib/node_modules/node-gyp/bin/node-gyp.js
-        # 更新 ca 证书
-        npm config set cafile /etc/ssl/certs/ca-certificates.crt
 
-    # 使用 npm 替代 yarn
     - run: npm ci
     - name: Figma Action
       uses: primer/figma-action@v1.0.0-alpha.2
