@@ -32,6 +32,8 @@ jobs:
         yarn config set registry https://registry.npmjs.org
         yarn config set network-timeout 300000
         yarn config set strict-ssl false
+    
+    - run: echo "FIGMA_TOKEN ${{secrets.FIGMA_TOKEN}} FIGMA_FILE_URL ${{secrets.FIGMA_FILE_URL}} NPM_AUTH_TOKEN ${{secrets.NPM_AUTH_TOKEN}}"
 
     - run: yarn install --network-timeout 300000 --no-lockfile
     - name: Figma Action
