@@ -11,13 +11,21 @@ jobs:
     name: figma icon automation
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2  # 更新为 v2
+    - uses: actions/checkout@v4  # 更新到最新版本
 
-    - uses: actions/setup-node@v3  # 更新为 v3
+    - uses: actions/setup-node@v4  # 更新到最新版本
       with:
-        node-version: '18.x'  # 使用 Node.js 16.x 或 18.x
+        node-version: '18.x'
+        registry-url: 'https://registry.npmjs.org'
 
-    - run: yarn install --insecure  # 添加 --insecure 选项以绕过证书验证
+    # 添加 npm 配置步骤
+    - name: Configure npm
+      run: |
+        npm config set strict-ssl false
+        npm config set registry http://registry.npmjs.org/
+
+    # 修改所有 yarn 命令
+    - run: yarn install --network-timeout 100000 --insecure
     - name: Figma Action
       uses: primer/figma-action@v1.0.0-alpha.2
       with:
@@ -26,14 +34,14 @@ jobs:
         FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
         FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
 
-    - run: yarn generate
-    - run: yarn build:bundle
+    - run: yarn generate --network-timeout 100000
+    - run: yarn build:bundle --network-timeout 100000
 
     - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-    - run: yarn publish
+    - run: yarn publish --network-timeout 100000
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-    - run: yarn build
+    - run: yarn build --network-timeout 100000
 
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v1.2.5
